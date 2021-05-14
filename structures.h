@@ -5,7 +5,6 @@
 #ifndef IFE2_STRUCTURES_H
 #define IFE2_STRUCTURES_H
 
-#endif //IFE2_STRUCTURES_H
 
 typedef struct Inventory Inventory;
 
@@ -31,3 +30,5 @@ struct Game {
 
 
 };
+
+#endif //IFE2_STRUCTURES_H

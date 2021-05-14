@@ -5,12 +5,21 @@
 #ifndef IFE2_FONCTIONS_H
 #define IFE2_FONCTIONS_H
 
-#endif //IFE2_FONCTIONS_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "structures.h"
 
+int abs(int x)
+{
+    if(x>0)
+    {
+        return x;
+    } else
+    {
+        return -x;
+    }
+}
 
 int getint() {
     int n = fgetchar()-'0';
@@ -166,7 +175,10 @@ void shoot_s(Game *partie, int x, int y)
 {
     int *cible = getBoat(partie,x,y);
     if (cible == NULL) {
-        partie->grille[10*y+x] = 'O';
+        if (partie->grille[10*y+x] != 'X')
+        {
+            partie->grille[10*y+x] = 'O';
+        }
         printf("Echec\n");
     } else {
         *cible = 0;
@@ -176,8 +188,98 @@ void shoot_s(Game *partie, int x, int y)
 
 }
 
+void shoot_a(Game *partie, int x, int y, int horizontal)
+{
+    int *cible = NULL;
+
+    for (int i = 0; i < 10; ++i) {
+
+        if (horizontal)
+        {
+            x = i;
+        } else {
+            y = i;
+        }
+
+        cible = getBoat(partie,x,y);
+
+        if (cible == NULL) {
+            if (partie->grille[10*y+x] != 'X')
+            {
+                partie->grille[10*y+x] = 'O';
+            }
+        } else {
+            *cible = 0;
+            partie->grille[10*y+x] = 'X';
+            printf("Touche en %d,%d\n",x,y);
+        }
+
+    }
+
+
+}
+
+void shoot_t(Game *partie, int x, int y)
+{
+    int *cible = NULL;
+    int *bateau = NULL;
+
+    cible = getBoat(partie,x,y);
+
+    if (cible == NULL) {
+        if (partie->grille[10*y+x] != 'X')
+        {
+            partie->grille[10*y+x] = 'O';
+            printf("Echec\n");
+        }
+    } else {
+        bateau = partie->flotte + (((cible - partie->flotte)/10) * 10);
+        for (int i = 0; i < *bateau; ++i) {
+            partie->grille[10 * (*(bateau+3) + (1 - *(bateau+1)) * i ) + (*(bateau+2) + *(bateau+1) * i )] = 'X';
+        }
+        *bateau = 0;
+        printf("Coule\n");
+    }
+
+
+
+
+}
+
+void shoot_b(Game *partie, int x0, int y0)
+{
+    int x,y;
+    int *cible = NULL;
+
+    for (int i = -2; i < 3; ++i) {
+        for (int j = -(2 - abs(i)); j < 3- abs(i); ++j) {
+
+            x = x0 +i;
+            y = y0 + j;
+
+            if (x >= 0 && x < 10 && y >= 0 && y < 10) {
+
+                cible = getBoat(partie, x, y);
+
+                if (cible == NULL) {
+                    if (partie->grille[10 * y + x] != 'X') {
+                        partie->grille[10 * y + x] = 'O';
+                    }
+                } else {
+                    *cible = 0;
+                    partie->grille[10 * y + x] = 'X';
+                    printf("Touche en %d,%d\n", x, y);
+                }
+            }
+
+        }
+
+    }
+
+}
+
 int tirer(Game *partie) {
-    int x,y,missile;
+    int x,y,missile,direction;
 
     printf("Choisissez un missile :\n");
     printf("1: Simple\n");
@@ -194,6 +296,20 @@ int tirer(Game *partie) {
     switch (missile) {
         case 1:
             shoot_s(partie,x,y);
+            break;
+        case 2:
+            printf("Horizontal ? ");
+            direction = getint();
+            shoot_a(partie,x,y,direction);
+            break;
+        case 3:
+            shoot_t(partie,x,y);
+            break;
+        case 4:
+            shoot_b(partie,x,y);
+            break;
+        default:
+            exit(0);
             break;
 
     }
@@ -342,3 +458,6 @@ void mainMenu(Game *partie) {
     }
 
 }
+
+
+#endif //IFE2_FONCTIONS_H
