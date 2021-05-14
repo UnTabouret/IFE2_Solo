@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include "structures.h"
 
+
 int abs(int x)
 {
     if(x>0)
@@ -408,23 +409,71 @@ void createGame(Game *partie) {
 
 }
 
+void sauvegarder(Game *partie) {
+    FILE* fichier = NULL;
+
+    fichier = fopen("sauvegarde.txt", "w+");
+
+    if (fichier == NULL) {
+        printf("ERROR");
+        exit(0);
+    }
+
+    for (int i = 0; i < 100; ++i) {
+        fputc(partie->flotte[i]+48,fichier);
+    }
+
+    for (int i = 0; i < 100; ++i) {
+        fputc(partie->grille[i],fichier);
+    }
+
+    fputc(partie->mode+48,fichier);
+    fprintf(fichier," %d",partie->inventaire.missile_s);
+    fprintf(fichier," %d",partie->inventaire.missile_a);
+    fprintf(fichier," %d",partie->inventaire.missile_t);
+    fprintf(fichier," %d",partie->inventaire.missile_b);
+
+
+    fclose(fichier);
+
+}
+
+void loadGame(Game *partie) {
+    FILE* fichier = NULL;
+
+    fichier = fopen("sauvegarde.txt", "r");
+
+    for (int i = 0; i < 100; ++i) {
+        partie->flotte[i] = fgetc(fichier) - 48;
+    }
+
+    for (int i = 0; i < 100; ++i) {
+        partie->grille[i] = fgetc(fichier);
+    }
+
+    fscanf(fichier,"%d",&partie->mode);
+    fscanf(fichier," %d %d %d %d",&partie->inventaire.missile_s,&partie->inventaire.missile_a,&partie->inventaire.missile_t,&partie->inventaire.missile_b);
+
+    fclose(fichier);
+}
+
 void gameMenu(Game *partie){
     int choix,fin;
     fin = 0;
     affPlayer(partie);
     printf("Choisissez une action :\n");
     printf("1: Tirer\n");
-    printf("2: Sauvegarder\n");
+    printf("2: Sauvegarder et quitter\n");
+    printf("3: Quitter\n");
     choix = getint();
 
     while (!fin) {
         if (choix == 1) {
             fin = tirer(partie);
         } else if (choix == 2) {
+            sauvegarder(partie);
             exit(0);
-            // sauvegarder(partie);
         } else {
-            printf("\nERROR CHOICE\n");
             exit(0);
         }
     }
@@ -447,7 +496,8 @@ void mainMenu(Game *partie) {
             createGame(partie);
             break;
         case 2:
-            //loadGame();
+            loadGame(partie);
+            break;
         case 3:
             exit(0);
             break;
