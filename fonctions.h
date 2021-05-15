@@ -29,7 +29,7 @@ int getint() {
 }
 
 void affGrille(Game *partie) {
-    printf("  A B C D E F G H I J\n");
+    printf("  0 1 2 3 4 5 6 7 8 9\n");
     for (int i = 0; i < 10; ++i) {
         printf("%d ",i);
         for (int j = 0; j < 10; ++j) {
@@ -296,22 +296,45 @@ int tirer(Game *partie) {
 
     switch (missile) {
         case 1:
+            if (partie->inventaire.missile_s == 0)
+            {
+                printf("Vous ne possedez plus de ce type de missile\n");
+                return 0;
+            }
+            partie->inventaire.missile_s--;
             shoot_s(partie,x,y);
             break;
         case 2:
+            if (partie->inventaire.missile_a == 0)
+            {
+                printf("Vous ne possedez plus de ce type de missile\n");
+                return 0;
+            }
+            partie->inventaire.missile_a--;
             printf("Horizontal ? ");
             direction = getint();
             shoot_a(partie,x,y,direction);
             break;
         case 3:
+            if (partie->inventaire.missile_t == 0)
+            {
+                printf("Vous ne possedez plus de ce type de missile\n");
+                return 0;
+            }
+            partie->inventaire.missile_t--;
             shoot_t(partie,x,y);
             break;
         case 4:
+            if (partie->inventaire.missile_b == 0)
+            {
+                printf("Vous ne possedez plus de ce type de missile\n");
+                return 0;
+            }
+            partie->inventaire.missile_b--;
             shoot_b(partie,x,y);
             break;
         default:
             exit(0);
-            break;
 
     }
 
@@ -342,17 +365,39 @@ void finTour(Game *partie){
     {
         printf("\n\n**** Victoire du joueur ! ****\n");
         exit(0);
-    } else {
-        return;
+    } else if (partie->inventaire.missile_s + partie->inventaire.missile_a + partie->inventaire.missile_t + partie->inventaire.missile_b == 0){
+        printf("\n\n**** Defaite du joueur ! ****\n");
+        exit(0);
     }
 }
 
 void createFleet(Game *partie)
 {
-    int choix, effectif, taille, horizontal, x, y;
+    int choix, effectif, taille, horizontal, x, y, difficulte;
     int *bateau;
     effectif = 0;
-    initPlayer(partie,10,0,0,0);
+    printf("Choisissez une difficulte :\n");
+    printf("1: Facile (10 missiles de chaque type)\n");
+    printf("2: Moyen (3 missiles d'artillerie, 5 bombes, 5 missiles tactiques, 10 missiles simples)\n");
+    printf("3: Difficile (1 missiles d'artillerie, 2 bombes, 4 missiles tactiques, 15 missiles simples)\n");
+    difficulte = getint();
+
+    switch (difficulte) {
+        case 1:
+            initPlayer(partie,10,10,10,10);
+            break;
+        case 2:
+            initPlayer(partie,10,3,5,5);
+            break;
+        case 3:
+            initPlayer(partie,15,1,4,2);
+            break;
+        default:
+            printf("Choix incorrect");
+            exit(0);
+
+    }
+
 
     while (1)
     {
@@ -401,7 +446,10 @@ void createFleet(Game *partie)
 
 void createGame(Game *partie) {
 
-    printf("Choisissez un mode de jeu : ");
+    printf("Choisissez un mode de jeu\n");
+    printf("1: Classic\n");
+    printf("2: Blind\n");
+    printf("3: Active\n");
     partie->mode = getint();
 
     printf("Creation de la flotte :\n");
@@ -500,11 +548,9 @@ void mainMenu(Game *partie) {
             break;
         case 3:
             exit(0);
-            break;
         default:
             printf("ERROR CHOICE\n");
             exit(0);
-            break;
     }
 
 }
