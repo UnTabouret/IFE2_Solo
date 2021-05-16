@@ -1,9 +1,9 @@
 
 #include "fonctions.h"
-
 int main() {
 
     Game partie;
+    srand(time(NULL));
 
     // Code temporaire
 

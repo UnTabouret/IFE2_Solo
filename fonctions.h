@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "structures.h"
 
 
@@ -378,31 +379,9 @@ void finTour(Game *partie){
 
 void createFleet(Game *partie)
 {
-    int choix, effectif, taille, horizontal, x, y, difficulte;
+    int choix, effectif, taille, horizontal, x, y;
     int *bateau;
     effectif = 0;
-    printf("Choisissez une difficulte :\n");
-    printf("1: Facile (10 missiles de chaque type)\n");
-    printf("2: Moyen (3 missiles d'artillerie, 5 bombes, 5 missiles tactiques, 10 missiles simples)\n");
-    printf("3: Difficile (1 missiles d'artillerie, 2 bombes, 4 missiles tactiques, 15 missiles simples)\n");
-    difficulte = getint();
-
-    switch (difficulte) {
-        case 1:
-            initPlayer(partie,10,10,10,10);
-            break;
-        case 2:
-            initPlayer(partie,10,3,5,5);
-            break;
-        case 3:
-            initPlayer(partie,15,1,4,2);
-            break;
-        default:
-            printf("Choix incorrect");
-            exit(0);
-
-    }
-
 
     while (1)
     {
@@ -451,14 +430,46 @@ void createFleet(Game *partie)
 
 void createGame(Game *partie) {
 
+    int choix, difficulte;
+
     printf("Choisissez un mode de jeu\n");
     printf("1: Classic\n");
     printf("2: Blind\n");
     printf("3: Active\n");
     partie->mode = getint();
 
-    printf("Creation de la flotte :\n");
-    createFleet(partie);
+    printf("Choisissez une difficulte :\n");
+    printf("1: Facile (10 missiles de chaque type)\n");
+    printf("2: Moyen (3 missiles d'artillerie, 5 bombes, 5 missiles tactiques, 10 missiles simples)\n");
+    printf("3: Difficile (1 missiles d'artillerie, 2 bombes, 4 missiles tactiques, 15 missiles simples)\n");
+    difficulte = getint();
+
+    switch (difficulte) {
+        case 1:
+            initPlayer(partie,10,10,10,10);
+            break;
+        case 2:
+            initPlayer(partie,10,3,5,5);
+            break;
+        case 3:
+            initPlayer(partie,15,1,4,2);
+            break;
+        default:
+            printf("Choix incorrect");
+            exit(0);
+
+    }
+
+    printf("Mode de creation de la flotte :\n");
+    printf("1: Automatique\n");
+    printf("2: Manuelle\n");
+    choix = getint();
+
+    if (choix == 2) {
+        createFleet(partie);
+    } else {
+        //autoFleet(partie);
+    }
 
 }
 
