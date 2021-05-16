@@ -12,20 +12,20 @@ typedef struct Game Game;
 
 struct Inventory {
 
-    int missile_s, missile_a, missile_b, missile_t;
+    int simple, artillerie, bombe, tactique;
 
 };
 
 struct Game {
 
 
-    int flotte[100];
+    int fleet[100];
 
-    char grille[100];
+    char grid[100];
 
     int mode;
 
-    Inventory inventaire;
+    Inventory missiles;
 
 
 };

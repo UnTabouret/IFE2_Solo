@@ -12,48 +12,43 @@
 #include "structures.h"
 
 
-int abs(int x)
-{
-    if(x>0)
-    {
+int abs(int x) {
+    if (x > 0) {
         return x;
-    } else
-    {
+    } else {
         return -x;
     }
 }
 
 int getint() {
-    int n = fgetchar()-'0';
+    int n = fgetchar() - '0';
     fflush(stdin);
     return n;
 }
 
-void affGrille(Game *partie) {
+void dispGrid(Game *partie) {
     printf("  0 1 2 3 4 5 6 7 8 9\n");
     for (int i = 0; i < 10; ++i) {
-        printf("%d ",i);
+        printf("%d ", i);
         for (int j = 0; j < 10; ++j) {
-            printf("%c ",*(partie->grille + 10 * i + j));
+            printf("%c ", *(partie->grid + 10 * i + j));
         }
         printf("\n");
     }
 }
 
-int* getBoat(Game *partie, int x, int y){
+int *getBoat(Game *partie, int x, int y) {
     int *bateau = NULL;
     int bx, by, bl, bh;
     for (int i = 0; i < 10; ++i) {
-        bateau = partie->flotte + 10 * i;
+        bateau = partie->fleet + 10 * i;
         bl = *(bateau);
-        bh = *(bateau+1);
-        bx = *(bateau+2);
-        by = *(bateau+3);
+        bh = *(bateau + 1);
+        bx = *(bateau + 2);
+        by = *(bateau + 3);
 
-        if((by + (1-bh)*(bl-1)) >= y && by <= y && bx <= x && (bx + bh*(bl-1)) >= x)
-        {
-            if (bh)
-            {
+        if ((by + (1 - bh) * (bl - 1)) >= y && by <= y && bx <= x && (bx + bh * (bl - 1)) >= x) {
+            if (bh) {
                 return bateau + x - bx + 4;
             } else {
                 return bateau + y - by + 4;
@@ -73,7 +68,7 @@ void checkSink(Game *partie) {
 
     for (int i = 0; i < 10; ++i) {
 
-        bateau = partie->flotte + 10 * i;
+        bateau = partie->fleet + 10 * i;
 
         if (*bateau) {
 
@@ -93,22 +88,20 @@ void checkSink(Game *partie) {
         }
 
 
-
     }
 
 }
 
-void affFlotte(Game *partie) {
+void dispFleet(Game *partie) {
     int *bateau;
     for (int i = 0; i < 10; ++i) {
-        bateau = partie->flotte + 10 * i;
-        if (*bateau != 0)
-        {
-            printf("Bateau %d :\n",i+1);
-            printf("Taille: %d\n",*bateau);
+        bateau = partie->fleet + 10 * i;
+        if (*bateau != 0) {
+            printf("Bateau %d :\n", i + 1);
+            printf("Taille: %d\n", *bateau);
             printf("Orientiation : ");
 
-            if (*(bateau+1)) {
+            if (*(bateau + 1)) {
                 printf("Horizontal\n");
             } else {
                 printf("Vertical\n");
@@ -119,8 +112,7 @@ void affFlotte(Game *partie) {
             printf("Etat : [ ");
 
             for (int j = 0; j < *bateau; ++j) {
-                if (*(bateau+j+4))
-                {
+                if (*(bateau + j + 4)) {
                     printf("_ ");
                 } else {
                     printf("X ");
@@ -133,94 +125,86 @@ void affFlotte(Game *partie) {
 }
 
 void initGrid(char grille[100]) {
-    for(int i = 0; i < 100; i++)
-    {
+    for (int i = 0; i < 100; i++) {
         grille[i] = '_';
     }
 }
 
-void initFlotte(int flotte[100]) {
-    for(int i = 0; i < 100; i++)
-    {
+void initFleet(int *flotte) {
+    for (int i = 0; i < 100; i++) {
         flotte[i] = 0;
     }
 }
 
-void affPlayer(Game *partie) {
+void dispPlayer(Game *partie) {
 
-    affFlotte(partie);
-    if(partie->mode == 1)
-    {
+    dispFleet(partie);
+    if (partie->mode == 1) {
         printf("Grille :\n");
-        affGrille(partie);
+        dispGrid(partie);
     }
     printf("\nInventaire :\n");
-    printf("Missiles simples : %d\n",partie->inventaire.missile_s);
-    printf("Missiles d'artillerie : %d\n",partie->inventaire.missile_a);
-    printf("Missiles tactiques : %d\n",partie->inventaire.missile_t);
-    printf("Bombes : %d\n",partie->inventaire.missile_b);
+    printf("Missiles simples : %d\n", partie->missiles.simple);
+    printf("Missiles d'artillerie : %d\n", partie->missiles.artillerie);
+    printf("Missiles tactiques : %d\n", partie->missiles.tactique);
+    printf("Bombes : %d\n", partie->missiles.bombe);
     printf("\n");
     printf("Bateaux restants :\n\n");
 }
 
 void initPlayer(Game *partie, int msimple, int mart, int mtact, int mbomb) {
-    partie->inventaire.missile_s = msimple;
-    partie->inventaire.missile_a = mart;
-    partie->inventaire.missile_t = mtact;
-    partie->inventaire.missile_b = mbomb;
-    initGrid(partie->grille);
-    initFlotte(partie->flotte);
+    partie->missiles.simple = msimple;
+    partie->missiles.artillerie = mart;
+    partie->missiles.tactique = mtact;
+    partie->missiles.bombe = mbomb;
+    initGrid(partie->grid);
+    initFleet(partie->fleet);
 
 }
 
-void shoot_s(Game *partie, int x, int y)
-{
-    int *cible = getBoat(partie,x,y);
+void shoot_s(Game *partie, int x, int y) {
+    int *cible = getBoat(partie, x, y);
     if (cible == NULL) {
-        if (partie->grille[10*y+x] != 'X')
-        {
-            partie->grille[10*y+x] = 'O';
+        if (partie->grid[10 * y + x] != 'X') {
+            partie->grid[10 * y + x] = 'O';
         }
         printf("Echec\n");
     } else {
         *cible = 0;
-        partie->grille[10*y+x] = 'X';
+        partie->grid[10 * y + x] = 'X';
         printf("Touche\n");
     }
 
 }
 
-void shoot_a(Game *partie, int x, int y)
-{
+void shoot_a(Game *partie, int x, int y) {
     int *cible = NULL;
 
     for (int i = 0; i < 10; ++i) {
 
 
-        cible = getBoat(partie,x,i);
+        cible = getBoat(partie, x, i);
 
         if (cible == NULL) {
-            if (partie->grille[10*i+x] != 'X')
-            {
-                partie->grille[10*i+x] = 'O';
+            if (partie->grid[10 * i + x] != 'X') {
+                partie->grid[10 * i + x] = 'O';
             }
         } else {
             *cible = 0;
-            partie->grille[10*i+x] = 'X';
-            printf("Touche en %d,%d\n",x,i);
+            partie->grid[10 * i + x] = 'X';
+            printf("Touche en %d,%d\n", x, i);
         }
 
-        cible = getBoat(partie,i,y);
+        cible = getBoat(partie, i, y);
 
         if (cible == NULL) {
-            if (partie->grille[10*y+i] != 'X')
-            {
-                partie->grille[10*y+i] = 'O';
+            if (partie->grid[10 * y + i] != 'X') {
+                partie->grid[10 * y + i] = 'O';
             }
         } else {
             *cible = 0;
-            partie->grille[10*y+i] = 'X';
-            printf("Touche en %d,%d\n",i,y);
+            partie->grid[10 * y + i] = 'X';
+            printf("Touche en %d,%d\n", i, y);
         }
 
     }
@@ -228,42 +212,37 @@ void shoot_a(Game *partie, int x, int y)
 
 }
 
-void shoot_t(Game *partie, int x, int y)
-{
+void shoot_t(Game *partie, int x, int y) {
     int *cible = NULL;
     int *bateau = NULL;
 
-    cible = getBoat(partie,x,y);
+    cible = getBoat(partie, x, y);
 
     if (cible == NULL) {
-        if (partie->grille[10*y+x] != 'X')
-        {
-            partie->grille[10*y+x] = 'O';
+        if (partie->grid[10 * y + x] != 'X') {
+            partie->grid[10 * y + x] = 'O';
             printf("Echec\n");
         }
     } else {
-        bateau = partie->flotte + (((cible - partie->flotte)/10) * 10);
+        bateau = partie->fleet + (((cible - partie->fleet) / 10) * 10);
         for (int i = 0; i < *bateau; ++i) {
-            partie->grille[10 * (*(bateau+3) + (1 - *(bateau+1)) * i ) + (*(bateau+2) + *(bateau+1) * i )] = 'X';
+            partie->grid[10 * (*(bateau + 3) + (1 - *(bateau + 1)) * i) + (*(bateau + 2) + *(bateau + 1) * i)] = 'X';
         }
         *bateau = 0;
         printf("Coule\n");
     }
 
 
-
-
 }
 
-void shoot_b(Game *partie, int x0, int y0)
-{
-    int x,y;
+void shoot_b(Game *partie, int x0, int y0) {
+    int x, y;
     int *cible = NULL;
 
     for (int i = -2; i < 3; ++i) {
-        for (int j = -(2 - abs(i)); j < 3- abs(i); ++j) {
+        for (int j = -(2 - abs(i)); j < 3 - abs(i); ++j) {
 
-            x = x0 +i;
+            x = x0 + i;
             y = y0 + j;
 
             if (x >= 0 && x < 10 && y >= 0 && y < 10) {
@@ -271,12 +250,12 @@ void shoot_b(Game *partie, int x0, int y0)
                 cible = getBoat(partie, x, y);
 
                 if (cible == NULL) {
-                    if (partie->grille[10 * y + x] != 'X') {
-                        partie->grille[10 * y + x] = 'O';
+                    if (partie->grid[10 * y + x] != 'X') {
+                        partie->grid[10 * y + x] = 'O';
                     }
                 } else {
                     *cible = 0;
-                    partie->grille[10 * y + x] = 'X';
+                    partie->grid[10 * y + x] = 'X';
                     printf("Touche en %d,%d\n", x, y);
                 }
             }
@@ -287,8 +266,8 @@ void shoot_b(Game *partie, int x0, int y0)
 
 }
 
-int tirer(Game *partie) {
-    int x,y,missile;
+int fire(Game *partie) {
+    int x, y, missile;
 
     printf("Choisissez un missile :\n");
     printf("1: Simple\n");
@@ -304,40 +283,36 @@ int tirer(Game *partie) {
 
     switch (missile) {
         case 1:
-            if (partie->inventaire.missile_s == 0)
-            {
+            if (partie->missiles.simple == 0) {
                 printf("Vous ne possedez plus de ce type de missile\n");
                 return 0;
             }
-            partie->inventaire.missile_s--;
-            shoot_s(partie,x,y);
+            partie->missiles.simple--;
+            shoot_s(partie, x, y);
             break;
         case 2:
-            if (partie->inventaire.missile_a == 0)
-            {
+            if (partie->missiles.artillerie == 0) {
                 printf("Vous ne possedez plus de ce type de missile\n");
                 return 0;
             }
-            partie->inventaire.missile_a--;
-            shoot_a(partie,x,y);
+            partie->missiles.artillerie--;
+            shoot_a(partie, x, y);
             break;
         case 3:
-            if (partie->inventaire.missile_t == 0)
-            {
+            if (partie->missiles.tactique == 0) {
                 printf("Vous ne possedez plus de ce type de missile\n");
                 return 0;
             }
-            partie->inventaire.missile_t--;
-            shoot_t(partie,x,y);
+            partie->missiles.tactique--;
+            shoot_t(partie, x, y);
             break;
         case 4:
-            if (partie->inventaire.missile_b == 0)
-            {
+            if (partie->missiles.bombe == 0) {
                 printf("Vous ne possedez plus de ce type de missile\n");
                 return 0;
             }
-            partie->inventaire.missile_b--;
-            shoot_b(partie,x,y);
+            partie->missiles.bombe--;
+            shoot_b(partie, x, y);
             break;
         default:
             exit(0);
@@ -350,65 +325,53 @@ int tirer(Game *partie) {
     return 1;
 
 
-
 }
 
 void movement(Game *partie) {
     int *bateau;
     int sens, vitesse, x, y, valide;
     for (int i = 0; i < 10; ++i) {
-        bateau = partie->flotte + 10*i;
+        bateau = partie->fleet + 10 * i;
         valide = 1;
-        if (*bateau)
-        {
-            sens = rand()%2; //0 pour décroissant, 1 pour croissant
-            vitesse = rand()%3 + 1;
+        if (*bateau) {
+            sens = rand() % 2; //0 pour décroissant, 1 pour croissant
+            vitesse = rand() % 3 + 1;
 
-            for (int j = 1; j < vitesse+1; ++j) {
-                x = (bateau[2] + bateau[1]*(sens * (bateau[0]-1) + (2*sens - 1) * j));
-                y = (bateau[3] + (1 - bateau[1])*(sens * (bateau[0]-1) + (2*sens - 1) * j));
-                if(!(x >= 0 && y >=0 && x < 10 && y < 10 && getBoat(partie,x,y) == NULL))
-                {
+            for (int j = 1; j < vitesse + 1; ++j) {
+                x = (bateau[2] + bateau[1] * (sens * (bateau[0] - 1) + (2 * sens - 1) * j));
+                y = (bateau[3] + (1 - bateau[1]) * (sens * (bateau[0] - 1) + (2 * sens - 1) * j));
+                if (!(x >= 0 && y >= 0 && x < 10 && y < 10 && getBoat(partie, x, y) == NULL)) {
                     valide = 0;
                 }
             }
 
-            if (valide && rand()%10 > 7)
-            {
-                bateau[2] += vitesse*bateau[1]*(2 * sens - 1);
-                bateau[3] += vitesse*(1-bateau[1])*(2 * sens - 1);
-                printf("Le bateau %d s'est deplace de %d cases vers ", i+1,vitesse);
-                if (bateau[1] == 0 && sens == 0)
-                {
+            if (valide && rand() % 10 > 7) {
+                bateau[2] += vitesse * bateau[1] * (2 * sens - 1);
+                bateau[3] += vitesse * (1 - bateau[1]) * (2 * sens - 1);
+                printf("Le bateau %d s'est deplace de %d cases vers ", i + 1, vitesse);
+                if (bateau[1] == 0 && sens == 0) {
                     printf("le haut\n");
-                } else if (bateau[1] == 1 && sens == 0)
-                {
+                } else if (bateau[1] == 1 && sens == 0) {
                     printf("la gauche\n");
-                } else if (bateau[1] == 0 && sens == 1)
-                {
+                } else if (bateau[1] == 0 && sens == 1) {
                     printf("le bas\n");
-                } else if (bateau[1] == 1 && sens == 1)
-                {
+                } else if (bateau[1] == 1 && sens == 1) {
                     printf("la droite\n");
                 }
             }
-
-
-
-
 
 
         }
     }
 }
 
-void finTour(Game *partie){
+void endTurn(Game *partie) {
 
     int mort = 1;
     int *bateau;
 
     for (int i = 0; i < 10; ++i) {
-        bateau = partie->flotte + 10 * i;
+        bateau = partie->fleet + 10 * i;
 
         if (*bateau) {
             mort = 0;
@@ -416,43 +379,40 @@ void finTour(Game *partie){
 
     }
 
-    if (mort)
-    {
+    if (mort) {
         printf("\n\n**** Victoire du joueur ! ****\n");
         exit(0);
-    } else if (partie->inventaire.missile_s + partie->inventaire.missile_a + partie->inventaire.missile_t + partie->inventaire.missile_b == 0){
+    } else if (partie->missiles.simple + partie->missiles.artillerie + partie->missiles.tactique +
+               partie->missiles.bombe == 0) {
         printf("\n\n**** Defaite du joueur ! ****\n");
         exit(0);
     }
 
-    if (partie->mode == 3)
-    {
-      movement(partie);
+    if (partie->mode == 3) {
+        movement(partie);
     }
 }
 
-int addBoat(Game *partie, int *bateau,int l, int h,int x,int y)
-{
+int addBoat(Game *partie, int *bateau, int l, int h, int x, int y) {
     for (int i = 0; i < l; ++i) {
-        *(bateau+4+i) = 1;
+        *(bateau + 4 + i) = 1;
 
-        if (getBoat(partie,x + i*h ,y+ i * (1-h)) != NULL || x + l*h > 10 || y + l *(1-h) > 10) {
+        if (getBoat(partie, x + i * h, y + i * (1 - h)) != NULL || x + l * h > 10 || y + l * (1 - h) > 10) {
 
             return 0;
         }
     }
 
     *bateau = l;
-    *(bateau+1) = h;
-    *(bateau+2) = x;
-    *(bateau+3) = y;
+    *(bateau + 1) = h;
+    *(bateau + 2) = x;
+    *(bateau + 3) = y;
 
     return 1;
 
 }
 
-void randFleet(Game *partie)
-{
+void randFleet(Game *partie) {
     int effectif, taille, horizontal, x, y, n;
     int *bateau;
     effectif = 0;
@@ -460,41 +420,37 @@ void randFleet(Game *partie)
     printf("Nombre de bateaux : ");
     n = getint();
 
-    while (effectif < n)
-    {
+    while (effectif < n) {
 
-        bateau = partie->flotte + 10 * effectif;
-        taille = rand()%4 + 2;
-        horizontal = rand()%2;
-        x = rand()%10;
-        y = rand()%10;
+        bateau = partie->fleet + 10 * effectif;
+        taille = rand() % 4 + 2;
+        horizontal = rand() % 2;
+        x = rand() % 10;
+        y = rand() % 10;
 
-        if (addBoat(partie,bateau,taille,horizontal,x,y)) {
+        if (addBoat(partie, bateau, taille, horizontal, x, y)) {
             effectif++;
         }
 
     }
 }
 
-void createFleet(Game *partie)
-{
+void createFleet(Game *partie) {
     int choix, effectif, taille, horizontal, x, y;
     int *bateau;
     effectif = 0;
 
-    while (1)
-    {
+    while (1) {
         printf("Choisissez une action :\n");
         printf("1: Ajouter bateau\n");
         printf("2: Terminer creation\n");
         choix = getint();
-        if (choix == 2)
-        {
-            affFlotte(partie);
+        if (choix == 2) {
+            dispFleet(partie);
             return;
         }
 
-        bateau = partie->flotte + 10 * effectif;
+        bateau = partie->fleet + 10 * effectif;
 
         printf("Entrez la taille du bateau : ");
         taille = getint();
@@ -505,7 +461,7 @@ void createFleet(Game *partie)
         printf("Ordonnee du bateau : ");
         y = getint();
 
-        if (addBoat(partie,bateau,taille,horizontal,x,y)) {
+        if (addBoat(partie, bateau, taille, horizontal, x, y)) {
             effectif++;
         } else {
             printf("Echec de l'ajout\n");
@@ -533,13 +489,13 @@ void createGame(Game *partie) {
 
     switch (difficulte) {
         case 1:
-            initPlayer(partie,10,10,10,10);
+            initPlayer(partie, 10, 10, 10, 10);
             break;
         case 2:
-            initPlayer(partie,10,3,5,5);
+            initPlayer(partie, 10, 3, 5, 5);
             break;
         case 3:
-            initPlayer(partie,15,1,4,2);
+            initPlayer(partie, 15, 1, 4, 2);
             break;
         default:
             printf("Choix incorrect");
@@ -547,7 +503,7 @@ void createGame(Game *partie) {
 
     }
 
-    printf("Mode de creation de la flotte :\n");
+    printf("Mode de creation de la fleet :\n");
     printf("1: Automatique\n");
     printf("2: Manuelle\n");
     choix = getint();
@@ -560,8 +516,8 @@ void createGame(Game *partie) {
 
 }
 
-void sauvegarder(Game *partie) {
-    FILE* fichier = NULL;
+void saveGame(Game *partie) {
+    FILE *fichier = NULL;
 
     fichier = fopen("sauvegarde.txt", "w+");
 
@@ -571,18 +527,18 @@ void sauvegarder(Game *partie) {
     }
 
     for (int i = 0; i < 100; ++i) {
-        fputc(partie->flotte[i]+48,fichier);
+        fputc(partie->fleet[i] + '0', fichier);
     }
 
     for (int i = 0; i < 100; ++i) {
-        fputc(partie->grille[i],fichier);
+        fputc(partie->grid[i], fichier);
     }
 
-    fputc(partie->mode+48,fichier);
-    fprintf(fichier," %d",partie->inventaire.missile_s);
-    fprintf(fichier," %d",partie->inventaire.missile_a);
-    fprintf(fichier," %d",partie->inventaire.missile_t);
-    fprintf(fichier," %d",partie->inventaire.missile_b);
+    fputc(partie->mode + '0', fichier);
+    fprintf(fichier, " %d", partie->missiles.simple);
+    fprintf(fichier, " %d", partie->missiles.artillerie);
+    fprintf(fichier, " %d", partie->missiles.tactique);
+    fprintf(fichier, " %d", partie->missiles.bombe);
 
 
     fclose(fichier);
@@ -590,28 +546,29 @@ void sauvegarder(Game *partie) {
 }
 
 void loadGame(Game *partie) {
-    FILE* fichier = NULL;
+    FILE *fichier = NULL;
 
     fichier = fopen("sauvegarde.txt", "r");
 
     for (int i = 0; i < 100; ++i) {
-        partie->flotte[i] = fgetc(fichier) - 48;
+        partie->fleet[i] = fgetc(fichier) - '0';
     }
 
     for (int i = 0; i < 100; ++i) {
-        partie->grille[i] = fgetc(fichier);
+        partie->grid[i] = fgetc(fichier);
     }
 
-    fscanf(fichier,"%d",&partie->mode);
-    fscanf(fichier," %d %d %d %d",&partie->inventaire.missile_s,&partie->inventaire.missile_a,&partie->inventaire.missile_t,&partie->inventaire.missile_b);
+    fscanf(fichier, "%d", &partie->mode);
+    fscanf(fichier, " %d %d %d %d", &partie->missiles.simple, &partie->missiles.artillerie,
+           &partie->missiles.tactique, &partie->missiles.bombe);
 
     fclose(fichier);
 }
 
-void gameMenu(Game *partie){
-    int choix,fin;
+void gameMenu(Game *partie) {
+    int choix, fin;
     fin = 0;
-    affPlayer(partie);
+    dispPlayer(partie);
     printf("Choisissez une action :\n");
     printf("1: Tirer\n");
     printf("2: Sauvegarder et quitter\n");
@@ -620,9 +577,9 @@ void gameMenu(Game *partie){
 
     while (!fin) {
         if (choix == 1) {
-            fin = tirer(partie);
+            fin = fire(partie);
         } else if (choix == 2) {
-            sauvegarder(partie);
+            saveGame(partie);
             exit(0);
         } else {
             exit(0);
@@ -630,7 +587,7 @@ void gameMenu(Game *partie){
     }
 
 
-    finTour(partie);
+    endTurn(partie);
 
 }
 
