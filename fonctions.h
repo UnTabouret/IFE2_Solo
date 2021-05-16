@@ -114,7 +114,7 @@ void affFlotte(Game *partie) {
                 printf("Vertical\n");
             }
 
-            printf("Coordonnees : (%d,%d)\n",*(bateau+2),*(bateau+3));
+            //printf("Coordonnees : (%d,%d)\n",*(bateau+2),*(bateau+3));
 
             printf("Etat : [ ");
 
@@ -353,6 +353,55 @@ int tirer(Game *partie) {
 
 }
 
+void movement(Game *partie) {
+    int *bateau;
+    int sens, vitesse, x, y, valide;
+    for (int i = 0; i < 10; ++i) {
+        bateau = partie->flotte + 10*i;
+        valide = 1;
+        if (*bateau)
+        {
+            sens = rand()%2; //0 pour décroissant, 1 pour croissant
+            vitesse = rand()%3 + 1;
+
+            for (int j = 1; j < vitesse+1; ++j) {
+                x = (bateau[2] + bateau[1]*(sens * (bateau[0]-1) + (2*sens - 1) * j));
+                y = (bateau[3] + (1 - bateau[1])*(sens * (bateau[0]-1) + (2*sens - 1) * j));
+                if(!(x >= 0 && y >=0 && x < 10 && y < 10 && getBoat(partie,x,y) == NULL))
+                {
+                    valide = 0;
+                }
+            }
+
+            if (valide && rand()%10 > 7)
+            {
+                bateau[2] += vitesse*bateau[1]*(2 * sens - 1);
+                bateau[3] += vitesse*(1-bateau[1])*(2 * sens - 1);
+                printf("Le bateau %d s'est deplace de %d cases vers ", i+1,vitesse);
+                if (bateau[1] == 0 && sens == 0)
+                {
+                    printf("le haut\n");
+                } else if (bateau[1] == 1 && sens == 0)
+                {
+                    printf("la gauche\n");
+                } else if (bateau[1] == 0 && sens == 1)
+                {
+                    printf("le bas\n");
+                } else if (bateau[1] == 1 && sens == 1)
+                {
+                    printf("la droite\n");
+                }
+            }
+
+
+
+
+
+
+        }
+    }
+}
+
 void finTour(Game *partie){
 
     int mort = 1;
@@ -374,6 +423,11 @@ void finTour(Game *partie){
     } else if (partie->inventaire.missile_s + partie->inventaire.missile_a + partie->inventaire.missile_t + partie->inventaire.missile_b == 0){
         printf("\n\n**** Defaite du joueur ! ****\n");
         exit(0);
+    }
+
+    if (partie->mode == 3)
+    {
+      movement(partie);
     }
 }
 
@@ -410,7 +464,7 @@ void randFleet(Game *partie)
     {
 
         bateau = partie->flotte + 10 * effectif;
-        taille = rand()%5 + 2;
+        taille = rand()%4 + 2;
         horizontal = rand()%2;
         x = rand()%10;
         y = rand()%10;
