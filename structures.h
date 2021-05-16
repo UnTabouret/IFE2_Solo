@@ -16,7 +16,6 @@ struct Inventory {
 
 };
 
-
 struct Game {
 
 
