@@ -189,30 +189,37 @@ void shoot_s(Game *partie, int x, int y)
 
 }
 
-void shoot_a(Game *partie, int x, int y, int horizontal)
+void shoot_a(Game *partie, int x, int y)
 {
     int *cible = NULL;
 
     for (int i = 0; i < 10; ++i) {
 
-        if (horizontal)
-        {
-            x = i;
-        } else {
-            y = i;
-        }
 
-        cible = getBoat(partie,x,y);
+        cible = getBoat(partie,x,i);
 
         if (cible == NULL) {
-            if (partie->grille[10*y+x] != 'X')
+            if (partie->grille[10*i+x] != 'X')
             {
-                partie->grille[10*y+x] = 'O';
+                partie->grille[10*i+x] = 'O';
             }
         } else {
             *cible = 0;
-            partie->grille[10*y+x] = 'X';
-            printf("Touche en %d,%d\n",x,y);
+            partie->grille[10*i+x] = 'X';
+            printf("Touche en %d,%d\n",x,i);
+        }
+
+        cible = getBoat(partie,i,y);
+
+        if (cible == NULL) {
+            if (partie->grille[10*y+i] != 'X')
+            {
+                partie->grille[10*y+i] = 'O';
+            }
+        } else {
+            *cible = 0;
+            partie->grille[10*y+i] = 'X';
+            printf("Touche en %d,%d\n",i,y);
         }
 
     }
@@ -280,7 +287,7 @@ void shoot_b(Game *partie, int x0, int y0)
 }
 
 int tirer(Game *partie) {
-    int x,y,missile,direction;
+    int x,y,missile;
 
     printf("Choisissez un missile :\n");
     printf("1: Simple\n");
@@ -311,9 +318,7 @@ int tirer(Game *partie) {
                 return 0;
             }
             partie->inventaire.missile_a--;
-            printf("Horizontal ? ");
-            direction = getint();
-            shoot_a(partie,x,y,direction);
+            shoot_a(partie,x,y);
             break;
         case 3:
             if (partie->inventaire.missile_t == 0)
