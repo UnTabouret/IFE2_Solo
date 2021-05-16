@@ -148,6 +148,7 @@ void initFlotte(int flotte[100]) {
 
 void affPlayer(Game *partie) {
 
+    affFlotte(partie);
     if(partie->mode == 1)
     {
         printf("Grille :\n");
@@ -160,7 +161,6 @@ void affPlayer(Game *partie) {
     printf("Bombes : %d\n",partie->inventaire.missile_b);
     printf("\n");
     printf("Bateaux restants :\n\n");
-    affFlotte(partie);
 }
 
 void initPlayer(Game *partie, int msimple, int mart, int mtact, int mbomb) {
@@ -377,6 +377,51 @@ void finTour(Game *partie){
     }
 }
 
+int addBoat(Game *partie, int *bateau,int l, int h,int x,int y)
+{
+    for (int i = 0; i < l; ++i) {
+        *(bateau+4+i) = 1;
+
+        if (getBoat(partie,x + i*h ,y+ i * (1-h)) != NULL || x + l*h > 10 || y + l *(1-h) > 10) {
+
+            return 0;
+        }
+    }
+
+    *bateau = l;
+    *(bateau+1) = h;
+    *(bateau+2) = x;
+    *(bateau+3) = y;
+
+    return 1;
+
+}
+
+void randFleet(Game *partie)
+{
+    int effectif, taille, horizontal, x, y, n;
+    int *bateau;
+    effectif = 0;
+
+    printf("Nombre de bateaux : ");
+    n = getint();
+
+    while (effectif < n)
+    {
+
+        bateau = partie->flotte + 10 * effectif;
+        taille = rand()%5 + 2;
+        horizontal = rand()%2;
+        x = rand()%10;
+        y = rand()%10;
+
+        if (addBoat(partie,bateau,taille,horizontal,x,y)) {
+            effectif++;
+        }
+
+    }
+}
+
 void createFleet(Game *partie)
 {
     int choix, effectif, taille, horizontal, x, y;
@@ -406,23 +451,11 @@ void createFleet(Game *partie)
         printf("Ordonnee du bateau : ");
         y = getint();
 
-
-        for (int i = 0; i < taille; ++i) {
-            *(bateau+4+i) = 1;
-
-            if (getBoat(partie,x + i*horizontal ,y+ i * (1-horizontal)) != NULL || x + taille*horizontal > 10 || y + taille *(1-horizontal) > 10) {
-
-                exit(0);
-            }
+        if (addBoat(partie,bateau,taille,horizontal,x,y)) {
+            effectif++;
+        } else {
+            printf("Echec de l'ajout\n");
         }
-
-        *bateau = taille;
-        *(bateau+1) = horizontal;
-        *(bateau+2) = x;
-        *(bateau+3) = y;
-
-        effectif++;
-
 
     }
 
@@ -468,7 +501,7 @@ void createGame(Game *partie) {
     if (choix == 2) {
         createFleet(partie);
     } else {
-        //autoFleet(partie);
+        randFleet(partie);
     }
 
 }
